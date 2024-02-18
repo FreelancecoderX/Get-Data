@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "money-control"
+version = "0.1.0"
+description = ""
+authors = ["FreelancecoderX <157281190+FreelancecoderX@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+bs4 = "^0.0.2"
+pandas = "^2.2.0"
+requests = "^2.31.0"
+pyarrow = "^15.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
