@@ -1,8 +1,7 @@
-playwright:
-	@playwright install
 main:
 	@python3 main.py
-
+next:
+	@python3 next.py
 all:
-	@make playwright
 	@make main
+	@make next
