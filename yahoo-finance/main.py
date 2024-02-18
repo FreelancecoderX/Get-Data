@@ -1,42 +1,64 @@
+from config import logger
+
 from datetime import datetime
-import logging
 
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 
-#  Set up logging with stream handler and INFO level
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
 
 class NewsScraper:
     def __init__(self, base_url: str):
         self.base_url = base_url
 
     def get_page(self, url: str) -> BeautifulSoup:
-        """Download webpage and parse with BeautifulSoup"""
+        """
+        Get the webpage content from the specified URL and return it as a BeautifulSoup object.
+
+        Args:
+            url (str): The URL of the webpage to download.
+
+        Returns:
+            BeautifulSoup: The parsed HTML content of the webpage.
+        """
         logger.info(f"Downloading webpage: {url}\n")
         response = requests.get(url)
 
         if not response.ok:
-            logger.error(f"Failed to load {url} with status code {response.status_code}\n")
-            raise Exception(f"Failed to load {url} with status code {response.status_code}\n")
+            logger.error(
+                f"Failed to load {url} with status code {response.status_code}\n"
+            )
+            raise Exception(
+                f"Failed to load {url} with status code {response.status_code}\n"
+            )
 
         soup = BeautifulSoup(response.text, "html.parser")
         return soup
 
     def get_news_tags(self, soup: BeautifulSoup) -> list:
-        """Get all news tags from the page"""
+        """
+        Get news tags from the BeautifulSoup object.
+
+        Args:
+            soup (BeautifulSoup): The BeautifulSoup object containing the parsed HTML.
+
+        Returns:
+            list: A list of news tags extracted from the page.
+        """
         logger.info("Extracting news tags from page\n")
 
         return soup.find_all("div", {"class": "Ov(h) Pend(44px) Pstart(25px)"})
 
     def parse_news(self, div_tag) -> dict:
-        """Parse news tags and return news object"""
+        """
+        Parse news from a div tag and return a dictionary containing the source, title, URL, and content.
+
+        Parameters:
+            div_tag: The div tag containing the news information.
+
+        Returns:
+            A dictionary with the keys "source", "title", "url", and "content" containing the parsed news information.
+        """
         logger.info("Parsing news from a div tag\n")
 
         source = div_tag.find("div").text
@@ -47,7 +69,15 @@ class NewsScraper:
         return {"source": source, "title": title, "url": url, "content": content}
 
     def scrape_news(self, path: str = None) -> pd.DataFrame:
-        """Scrape news from base_url and return dataframe"""
+        """
+        Scrapes news data from a website and saves it to a CSV file. If no path is provided, a default filename based on the current date is used. Returns a pandas DataFrame containing the scraped news data.
+
+        Parameters:
+            path (str, optional): The path to save the CSV file. Defaults to None.
+
+        Returns:
+            pandas.DataFrame: The DataFrame containing the scraped news data.
+        """
         if path is None:
             date = datetime.now().strftime("%Y-%m-%d")
             path = f"stock_market_news_{date}.csv"
@@ -72,4 +102,3 @@ class NewsScraper:
 if __name__ == "__main__":
     scraper = NewsScraper(base_url="https://finance.yahoo.com")
     news_df = scraper.scrape_news()
-
